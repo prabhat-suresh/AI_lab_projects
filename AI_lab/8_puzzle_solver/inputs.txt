@@ -1,0 +1,4 @@
+The hardest instances of the 8_puzzle are:
+867254301 and 647850321 (for C)
+8 6 7 2 5 4 3 0 1 and 6 4 7 8 5 0 3 2 1 (for Python and C++)
+with each taking 31 moves to solve

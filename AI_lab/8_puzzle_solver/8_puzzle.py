@@ -108,7 +108,7 @@ def A_star(puzzle):
         explored_list.append(node)
     return None
 
-start=tuple(map(int,input("enter initial configuration").split()))
+start=tuple(map(int,input("enter initial configuration as row major form (row 1 followed by row 2 and so on) with a zero in place of the blank tile").split()))
 puzzle8=puzzle_8(start) 
 if(puzzle8.check_solvability()):
     sol=A_star(puzzle8)
@@ -120,6 +120,6 @@ if(puzzle8.check_solvability()):
         print(node.state[6:9])
 
     print("number of steps taken:",len(route))
-    print("explored: ",sol[1])
+    print("Number of states explored: ",sol[1])
 else:
     print("not solvable")

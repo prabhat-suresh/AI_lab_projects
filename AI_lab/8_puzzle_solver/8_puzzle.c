@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PRIME 1000
+#define PRIME 1009
 
-struct hash_table_entry {
+struct hash_table_entry {  //hash table to maintain a set of unique states which have already been explored
+                          // or have been added to the priority queue for exploring later
   int key;
   bool value;
   struct hash_table_entry *next;
@@ -86,7 +87,7 @@ void deallocate(hash_table *table) {
   free(table);
 }
 
-typedef struct node {
+typedef struct node {  //structure to represent the states
   struct node *parent;
   int priority;
   int cost;
@@ -100,6 +101,8 @@ void swap(node **arr, int a, int b) {
   arr[b] = temp;
 }
 
+// min heap (priority queue) to explore the states according to A* search
+  
 void min_heapify(
     node **arr, int i,
     int heap_size) // i,l and r are C array type indices throughout the code
@@ -160,11 +163,10 @@ void min_heap_insert(node **arr, node *key, int *heap_size) {
     arr[i - 1] = arr[(i >> 1) - 1];
     i >>= 1;
   }
-  arr[i - 1] = key; // using insertion sort type data shift and reducing no. of
-                    // assignments from 3 to 1
+  arr[i - 1] = key; // using insertion sort type data shift 
 }
 
-int manhattan(node *nod) {
+int manhattan(node *nod) {  // manhattan heuristic 
   int count = 0, x;
   for (int i = 0; i < 9; i++) {
     if (x = nod->state[i] - '0') {
@@ -174,7 +176,7 @@ int manhattan(node *nod) {
   return count;
 }
 
-bool solvable(node *nod) {
+bool solvable(node *nod) {  // checking whether the puzzle is solvable or invalid
   int inversions = 0;
   for (int i = 0; i < 9; i++) {
     for (int j = i + 1; j < 9; j++) {
@@ -186,7 +188,7 @@ bool solvable(node *nod) {
   return inversions % 2 == 0;
 }
 
-bool goal_test(node *nod) {
+bool goal_test(node *nod) {  // test for goal state (final configuration)
   for (int i = 0; i < 8; i++) {
     if (nod->state[i] - '0' != i + 1)
       return false;
@@ -194,12 +196,12 @@ bool goal_test(node *nod) {
   return true;
 }
 
-node *a_star(node *nod) {
+node *a_star(node *nod) {  // A* search algorithm
   unsigned int explored_num = 0;
   int heap_size = 0, i;
   node *arr[10000];
   node *x, *y;
-  hash_table *hash_map = create_hash_table(1000);
+  hash_table *hash_map = create_hash_table(PRIME);
   initialize_hash_table(hash_map);
   char temp;
   min_heap_insert(arr, nod, &heap_size);
@@ -298,12 +300,21 @@ node *a_star(node *nod) {
   deallocate(hash_map);
 }
 
-void print(node *solution) {
+void print_matrix(char* state){
+  printf("%c %c %c\n",state[0],state[1],state[2]);
+  printf("%c %c %c\n",state[3],state[4],state[5]);
+  printf("%c %c %c\n\n",state[6],state[7],state[8]);
+}
+
+void print(node *solution) {  // fn to print the puzzle after each move of th solution
   if (solution) {
     print(solution->parent);
-    printf("%c ", solution->action);
+    if(solution->action=='l') printf("Left\n");
+    else if(solution->action=='r') printf("Right\n");
+    else if(solution->action=='u') printf("Up\n");
+    else if(solution->action=='d') printf("Down\n");
+    print_matrix(solution->state);
   }
-  return;
 }
 
 int main() {
@@ -311,11 +322,11 @@ int main() {
   start->action = '0'; // Null action
   start->cost = 0;
   start->parent = NULL;
-  printf("enter starting position: ");
+  printf("enter starting position in row-major form (row 1 values followed by row 2 values and so on) as a string of digits with '0' indicating the blank tile: ");
   scanf("%s", start->state);
   start->priority = manhattan(start);
   if (solvable(start)) {
     print(a_star(start));
   } else
-    printf("Not solvable");
+    printf("Invalid puzzle input. This puzzle is not solvable.");
 }
